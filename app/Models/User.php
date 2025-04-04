@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\WeatherHistory;
+use App\Models\Favorite;
 
 class User extends Authenticatable
 {
@@ -42,4 +44,20 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+    
+    /**
+     * Get the weather history records for the user.
+     */
+    public function weatherHistories()
+    {
+        return $this->hasMany(WeatherHistory::class);
+    }
+    
+    /**
+     * Get the favorite locations for the user.
+     */
+    public function favorites()
+    {
+        return $this->hasMany(Favorite::class);
+    }
 }
