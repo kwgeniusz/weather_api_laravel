@@ -17,3 +17,8 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+// API V1 Routes
+Route::prefix('v1')->group(function () {
+    require __DIR__ . '/api_v1.php';
+});
