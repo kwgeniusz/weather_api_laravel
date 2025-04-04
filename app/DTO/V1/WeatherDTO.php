@@ -5,14 +5,14 @@ namespace App\DTO\V1;
 class WeatherDTO
 {
     public function __construct(
-        private readonly string $city,
-        private readonly ?string $country = null,
-        private readonly ?float $temperature = null,
-        private readonly ?string $description = null,
-        private readonly ?int $humidity = null,
-        private readonly ?float $windSpeed = null,
-        private readonly ?array $requestData = null,
-        private readonly ?array $responseData = null
+        private string $city,
+        private ?string $country = null,
+        private ?float $temperature = null,
+        private ?string $description = null,
+        private ?int $humidity = null,
+        private ?float $windSpeed = null,
+        private array $requestData = [],
+        private array $responseData = []
     ) {
     }
 
@@ -46,12 +46,12 @@ class WeatherDTO
         return $this->windSpeed;
     }
 
-    public function getRequestData(): ?array
+    public function getRequestData(): array
     {
         return $this->requestData;
     }
 
-    public function getResponseData(): ?array
+    public function getResponseData(): array
     {
         return $this->responseData;
     }
@@ -73,14 +73,14 @@ class WeatherDTO
     public static function fromArray(array $data): self
     {
         return new self(
-            city: $data['city'],
-            country: $data['country'] ?? null,
-            temperature: $data['temperature'] ?? null,
-            description: $data['description'] ?? null,
-            humidity: $data['humidity'] ?? null,
-            windSpeed: $data['wind_speed'] ?? null,
-            requestData: $data['request_data'] ?? null,
-            responseData: $data['response_data'] ?? null
+            $data['city'],
+            $data['country'] ?? null,
+            $data['temperature'] ?? null,
+            $data['description'] ?? null,
+            $data['humidity'] ?? null,
+            $data['wind_speed'] ?? null,
+            $data['request_data'] ?? [],
+            $data['response_data'] ?? []
         );
     }
 }

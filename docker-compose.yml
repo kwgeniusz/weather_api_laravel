@@ -1,0 +1,61 @@
+version: '3'
+
+services:
+  # Servicio de PHP
+  app:
+    build:
+      args:
+        user: laravel
+        uid: 1000
+      context: ./
+      dockerfile: Dockerfile
+    image: weather-api-laravel
+    container_name: weather-api-app
+    restart: unless-stopped
+    working_dir: /var/www/
+    volumes:
+      - ./:/var/www
+    networks:
+      - weather-api-network
+
+  # Servicio de Nginx
+  nginx:
+    image: nginx:alpine
+    container_name: weather-api-nginx
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx:/etc/nginx/conf.d/
+    networks:
+      - weather-api-network
+
+  # Servicio de MySQL
+  db:
+    image: mysql:8.0
+    container_name: weather-api-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    volumes:
+      - ./docker/mysql:/var/lib/mysql
+    networks:
+      - weather-api-network
+
+  # Servicio de Redis para cache
+  redis:
+    image: redis:alpine
+    container_name: weather-api-redis
+    restart: unless-stopped
+    networks:
+      - weather-api-network
+
+networks:
+  weather-api-network:
+    driver: bridge

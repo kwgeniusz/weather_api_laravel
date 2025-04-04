@@ -5,13 +5,13 @@ namespace App\DTO\V1;
 class FavoriteDTO
 {
     public function __construct(
-        private readonly ?int $id = null,
-        private readonly ?int $userId = null,
-        private readonly string $city,
-        private readonly ?string $country = null,
-        private readonly ?float $latitude = null,
-        private readonly ?float $longitude = null,
-        private readonly bool $isDefault = false
+        private ?int $id = null,
+        private ?int $userId = null,
+        private string $city,
+        private ?string $country = null,
+        private ?float $latitude = null,
+        private ?float $longitude = null,
+        private bool $isDefault = false
     ) {
     }
 
@@ -66,13 +66,13 @@ class FavoriteDTO
     public static function fromArray(array $data): self
     {
         return new self(
-            id: $data['id'] ?? null,
-            userId: $data['user_id'] ?? null,
-            city: $data['city'],
-            country: $data['country'] ?? null,
-            latitude: $data['latitude'] ?? null,
-            longitude: $data['longitude'] ?? null,
-            isDefault: $data['is_default'] ?? false
+            $data['id'] ?? null,
+            $data['user_id'] ?? null,
+            $data['city'],
+            $data['country'] ?? null,
+            $data['latitude'] ?? null,
+            $data['longitude'] ?? null,
+            $data['is_default'] ?? false
         );
     }
 }

@@ -5,11 +5,11 @@ namespace App\DTO\V1;
 class UserDTO
 {
     public function __construct(
-        private readonly ?int $id = null,
-        private readonly string $name,
-        private readonly string $email,
-        private readonly ?string $password = null,
-        private readonly ?string $token = null
+        private ?int $id = null,
+        private string $name,
+        private string $email,
+        private ?string $password = null,
+        private ?string $token = null
     ) {
     }
 
@@ -51,11 +51,11 @@ class UserDTO
     public static function fromArray(array $data): self
     {
         return new self(
-            id: $data['id'] ?? null,
-            name: $data['name'],
-            email: $data['email'],
-            password: $data['password'] ?? null,
-            token: $data['token'] ?? null
+            $data['id'] ?? null,
+            $data['name'],
+            $data['email'],
+            $data['password'] ?? null,
+            $data['token'] ?? null
         );
     }
 }
