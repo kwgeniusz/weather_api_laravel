@@ -3,99 +3,55 @@
 namespace App\Repositories;
 
 use App\DTO\V1\WeatherDTO;
+use App\Exceptions\WeatherApiException;
 use App\Repositories\Interfaces\WeatherRepositoryInterface;
+use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
-use Exception;
+use Illuminate\Http\Client\RequestException;
+use Throwable;
 
 class WeatherRepository implements WeatherRepositoryInterface
 {
-    /**
-     * The base URL for the weather API.
-     *
-     * @var string
-     */
-    protected string $baseUrl;
+    private PendingRequest $http;
+    private string $baseUrl;
+    private string $apiKey;
+    private bool $useCache;
+    private int $cacheTtl;
 
-    /**
-     * The API key for the weather API.
-     *
-     * @var string
-     */
-    protected string $apiKey;
-
-    /**
-     * The endpoints for the weather API.
-     *
-     * @var array
-     */
-    protected array $endpoints;
-
-    /**
-     * The cache configuration.
-     *
-     * @var array
-     */
-    protected array $cacheConfig;
-
-    /**
-     * The timeout for API requests.
-     *
-     * @var int
-     */
-    protected int $timeout;
-
-    /**
-     * The retry configuration.
-     *
-     * @var array
-     */
-    protected array $retryConfig;
-
-    /**
-     * Create a new repository instance.
-     *
-     * @return void
-     */
     public function __construct()
     {
-        $this->baseUrl = config('weather_api.base_url');
-        $this->apiKey = config('weather_api.api_key');
-        $this->endpoints = config('weather_api.endpoints');
-        $this->cacheConfig = config('weather_api.cache');
-        $this->timeout = config('weather_api.timeout');
-        $this->retryConfig = config('weather_api.retry');
+        $this->baseUrl = config('weather_api.url');
+        $this->apiKey = config('weather_api.key');
+        $this->useCache = config('weather_api.cache.enabled', true);
+        $this->cacheTtl = config('weather_api.cache.ttl', 3600);
+
+        $this->http = Http::baseUrl($this->baseUrl)
+            ->withQueryParameters(['key' => $this->apiKey])
+            ->timeout(config('weather_api.timeout', 30))
+            ->retry(
+                config('weather_api.max_retries', 3),
+                config('weather_api.retry_delay', 100)
+            );
     }
 
-    /**
-     * Get current weather for a city.
-     *
-     * @param string $city
-     * @param array $options
-     * @return WeatherDTO
-     * @throws Exception
-     */
     public function getCurrentWeather(string $city, array $options = []): WeatherDTO
     {
         $cacheKey = "weather_current_{$city}_" . md5(json_encode($options));
 
-        if ($this->cacheConfig['enabled'] && Cache::has($cacheKey)) {
+        if ($this->useCache && Cache::has($cacheKey)) {
             return Cache::get($cacheKey);
         }
 
         try {
-            $endpoint = $this->baseUrl . $this->endpoints['current'];
-            
-            $response = Http::timeout($this->timeout)
-                ->retry($this->retryConfig['times'], $this->retryConfig['sleep'])
-                ->get($endpoint, array_merge([
-                    'key' => $this->apiKey,
-                    'q' => $city,
-                ], $options));
+            $response = $this->http->get('/current.json', [
+                'q' => $city,
+                'lang' => $options['language'] ?? 'en',
+                'units' => $options['units'] ?? 'metric'
+            ]);
 
             if ($response->failed()) {
-                throw new Exception("Failed to fetch weather data: " . $response->body());
+                $response->throw();
             }
 
             $data = $response->json();
@@ -107,131 +63,119 @@ class WeatherRepository implements WeatherRepositoryInterface
                 $data['current']['condition']['text'],
                 $data['current']['humidity'],
                 $data['current']['wind_kph'],
-                array_merge(['city' => $city], $options),
+                $options,
                 $data
             );
 
-            if ($this->cacheConfig['enabled']) {
-                Cache::put($cacheKey, $weatherDTO, $this->cacheConfig['ttl'] * 60);
+            if ($this->useCache) {
+                Cache::put($cacheKey, $weatherDTO, $this->cacheTtl);
             }
 
             return $weatherDTO;
-        } catch (Exception $e) {
-            Log::error("Weather API error: " . $e->getMessage());
-            throw $e;
+
+        } catch (RequestException $e) {
+            throw new WeatherApiException(
+                $e->response?->json()['error']['message'] ?? 'Weather API error',
+                $e->response?->status() ?? 500
+            );
+        } catch (Throwable $e) {
+            throw new WeatherApiException($e->getMessage());
         }
     }
 
-    /**
-     * Get weather forecast for a city.
-     *
-     * @param string $city
-     * @param int $days
-     * @param array $options
-     * @return array
-     * @throws Exception
-     */
     public function getForecast(string $city, int $days = 3, array $options = []): array
     {
         $cacheKey = "weather_forecast_{$city}_{$days}_" . md5(json_encode($options));
 
-        if ($this->cacheConfig['enabled'] && Cache::has($cacheKey)) {
+        if ($this->useCache && Cache::has($cacheKey)) {
             return Cache::get($cacheKey);
         }
 
         try {
-            $endpoint = $this->baseUrl . $this->endpoints['forecast'];
-            
-            $response = Http::timeout($this->timeout)
-                ->retry($this->retryConfig['times'], $this->retryConfig['sleep'])
-                ->get($endpoint, array_merge([
-                    'key' => $this->apiKey,
-                    'q' => $city,
-                    'days' => $days,
-                ], $options));
+            $response = $this->http->get('/forecast.json', [
+                'q' => $city,
+                'days' => $days,
+                'lang' => $options['language'] ?? 'en',
+                'units' => $options['units'] ?? 'metric'
+            ]);
 
             if ($response->failed()) {
-                throw new Exception("Failed to fetch forecast data: " . $response->body());
+                $response->throw();
             }
 
             $data = $response->json();
-            
             $forecast = [];
+
             foreach ($data['forecast']['forecastday'] as $day) {
                 $forecast[] = [
                     'date' => $day['date'],
                     'max_temp' => $day['day']['maxtemp_c'],
                     'min_temp' => $day['day']['mintemp_c'],
                     'condition' => $day['day']['condition']['text'],
-                    'icon' => $day['day']['condition']['icon'],
                     'humidity' => $day['day']['avghumidity'],
                     'wind_speed' => $day['day']['maxwind_kph'],
                     'chance_of_rain' => $day['day']['daily_chance_of_rain'],
                 ];
             }
 
-            if ($this->cacheConfig['enabled']) {
-                Cache::put($cacheKey, $forecast, $this->cacheConfig['ttl'] * 60);
+            if ($this->useCache) {
+                Cache::put($cacheKey, $forecast, $this->cacheTtl);
             }
 
             return $forecast;
-        } catch (Exception $e) {
-            Log::error("Weather API forecast error: " . $e->getMessage());
-            throw $e;
+
+        } catch (RequestException $e) {
+            throw new WeatherApiException(
+                $e->response?->json()['error']['message'] ?? 'Weather API error',
+                $e->response?->status() ?? 500
+            );
+        } catch (Throwable $e) {
+            throw new WeatherApiException($e->getMessage());
         }
     }
 
-    /**
-     * Search for cities by name.
-     *
-     * @param string $query
-     * @return array
-     * @throws Exception
-     */
     public function searchCity(string $query): array
     {
         $cacheKey = "weather_search_" . md5($query);
 
-        if ($this->cacheConfig['enabled'] && Cache::has($cacheKey)) {
+        if ($this->useCache && Cache::has($cacheKey)) {
             return Cache::get($cacheKey);
         }
 
         try {
-            $endpoint = $this->baseUrl . $this->endpoints['search'];
-            
-            $response = Http::timeout($this->timeout)
-                ->retry($this->retryConfig['times'], $this->retryConfig['sleep'])
-                ->get($endpoint, [
-                    'key' => $this->apiKey,
-                    'q' => $query,
-                ]);
+            $response = $this->http->get('/search.json', [
+                'q' => $query
+            ]);
 
             if ($response->failed()) {
-                throw new Exception("Failed to search cities: " . $response->body());
+                $response->throw();
             }
 
-            $data = $response->json();
-            
-            $cities = [];
-            foreach ($data as $city) {
-                $cities[] = [
-                    'id' => $city['id'],
+            $cities = $response->json();
+
+            $results = array_map(function ($city) {
+                return [
                     'name' => $city['name'],
-                    'region' => $city['region'],
                     'country' => $city['country'],
-                    'lat' => $city['lat'],
-                    'lon' => $city['lon'],
+                    'region' => $city['region'],
+                    'latitude' => $city['lat'],
+                    'longitude' => $city['lon'],
                 ];
+            }, $cities);
+
+            if ($this->useCache) {
+                Cache::put($cacheKey, $results, $this->cacheTtl);
             }
 
-            if ($this->cacheConfig['enabled']) {
-                Cache::put($cacheKey, $cities, $this->cacheConfig['ttl'] * 60);
-            }
+            return $results;
 
-            return $cities;
-        } catch (Exception $e) {
-            Log::error("Weather API search error: " . $e->getMessage());
-            throw $e;
+        } catch (RequestException $e) {
+            throw new WeatherApiException(
+                $e->response?->json()['error']['message'] ?? 'Weather API error',
+                $e->response?->status() ?? 500
+            );
+        } catch (Throwable $e) {
+            throw new WeatherApiException($e->getMessage());
         }
     }
 }
