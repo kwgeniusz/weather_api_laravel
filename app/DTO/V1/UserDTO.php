@@ -33,6 +33,11 @@ class UserDTO
         return $this->password;
     }
 
+    public function setPassword(?string $password): void
+    {
+        $this->password = $password;
+    }
+
     public function getToken(): ?string
     {
         return $this->token;
@@ -44,6 +49,7 @@ class UserDTO
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
+            'password' => $this->password,
             'token' => $this->token,
         ];
     }

@@ -26,11 +26,10 @@ class UserService implements UserServiceInterface
         }
 
         // Hash password
-        $userData = $userDTO->toArray();
-        $userData['password'] = Hash::make($userDTO->getPassword());
+        $userDTO->setPassword(Hash::make($userDTO->getPassword()));
 
         // Create user
-        $user = $this->userRepository->create($userData);
+        $user = $this->userRepository->create($userDTO);
 
         return new UserDTO(
             $user->id,
