@@ -1,0 +1,350 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Documentación de la API del Clima",
+        "description": "API para obtener información meteorológica y gestionar preferencias de usuario",
+        "contact": {
+            "email": "admin@example.com"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8000",
+            "description": "Servidor Local"
+        }
+    ],
+    "paths": {
+        "/api/v1/weather/current": {
+            "get": {
+                "tags": [
+                    "Clima"
+                ],
+                "summary": "Obtener clima actual de una ciudad",
+                "description": "Devuelve la información meteorológica actual de la ciudad especificada",
+                "operationId": "obtenerClimaActual",
+                "parameters": [
+                    {
+                        "name": "city",
+                        "in": "query",
+                        "description": "Nombre de la ciudad",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "description": "Idioma (es, en, etc.)",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "units",
+                        "in": "query",
+                        "description": "Unidades de medida (metric/imperial)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "metric",
+                                "imperial"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Operación exitosa",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "properties": {
+                                                "ciudad": {
+                                                    "type": "string"
+                                                },
+                                                "temperatura": {
+                                                    "type": "number"
+                                                },
+                                                "humedad": {
+                                                    "type": "integer"
+                                                },
+                                                "velocidad_viento": {
+                                                    "type": "number"
+                                                },
+                                                "descripcion": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Ciudad no encontrada"
+                    },
+                    "429": {
+                        "description": "Demasiadas solicitudes"
+                    }
+                }
+            }
+        },
+        "/api/v1/weather/forecast": {
+            "get": {
+                "tags": [
+                    "Clima"
+                ],
+                "summary": "Obtener pronóstico del clima para una ciudad",
+                "description": "Devuelve el pronóstico del tiempo para los próximos días",
+                "operationId": "obtenerPronostico",
+                "parameters": [
+                    {
+                        "name": "city",
+                        "in": "query",
+                        "description": "Nombre de la ciudad",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "days",
+                        "in": "query",
+                        "description": "Número de días para el pronóstico",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 7,
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "language",
+                        "in": "query",
+                        "description": "Idioma (es, en, etc.)",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "units",
+                        "in": "query",
+                        "description": "Unidades de medida (metric/imperial)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "metric",
+                                "imperial"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Operación exitosa",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "fecha": {
+                                                        "type": "string"
+                                                    },
+                                                    "temperatura": {
+                                                        "properties": {
+                                                            "minima": {
+                                                                "type": "number"
+                                                            },
+                                                            "maxima": {
+                                                                "type": "number"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "humedad": {
+                                                        "type": "integer"
+                                                    },
+                                                    "descripcion": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Ciudad no encontrada"
+                    }
+                }
+            }
+        },
+        "/api/v1/weather/search": {
+            "get": {
+                "tags": [
+                    "Clima"
+                ],
+                "summary": "Buscar ciudades",
+                "description": "Devuelve una lista de ciudades que coinciden con la búsqueda",
+                "operationId": "buscarCiudad",
+                "parameters": [
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "description": "Término de búsqueda",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Operación exitosa",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "nombre": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/weather/history": {
+            "get": {
+                "tags": [
+                    "Clima"
+                ],
+                "summary": "Obtener historial del clima del usuario",
+                "description": "Devuelve una lista de consultas meteorológicas realizadas por el usuario",
+                "operationId": "obtenerHistorialUsuario",
+                "parameters": [
+                    {
+                        "name": "from_date",
+                        "in": "query",
+                        "description": "Fecha de inicio para el historial",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "to_date",
+                        "in": "query",
+                        "description": "Fecha final para el historial",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "city",
+                        "in": "query",
+                        "description": "Nombre de la ciudad",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Operación exitosa",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "ciudad": {
+                                                        "type": "string"
+                                                    },
+                                                    "temperatura": {
+                                                        "type": "number"
+                                                    },
+                                                    "humedad": {
+                                                        "type": "integer"
+                                                    },
+                                                    "velocidad_viento": {
+                                                        "type": "number"
+                                                    },
+                                                    "descripcion": {
+                                                        "type": "string"
+                                                    },
+                                                    "fecha_creacion": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Clima",
+            "description": "Endpoints de la API para operaciones relacionadas con el clima"
+        }
+    ]
+}
