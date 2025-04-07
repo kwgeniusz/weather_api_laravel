@@ -64,3 +64,159 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+# Weather API Laravel
+
+## About The Project
+
+Weather API Laravel is a RESTful API application built with Laravel that provides weather information for cities around the world. The application integrates with WeatherAPI.com to fetch current weather data and forecasts, while allowing users to manage their favorite cities and search history.
+
+## Features
+
+- **User Authentication**: Register, login, logout, profile management
+- **Weather Data**: Current weather and forecasts for any city
+- **City Search**: Search for cities by name
+- **Favorites Management**: Save favorite cities and set default city
+- **History Tracking**: Track and manage weather search history
+- **Multilingual Support**: API responses in multiple languages
+
+## Architecture
+
+The application follows Clean Architecture with Repository-Service pattern:
+- **Models**: User, WeatherHistory, Favorite
+- **DTOs**: UserDTO, WeatherDTO, FavoriteDTO
+- **Repositories**: Interfaces and implementations for User, Weather, History, and Favorites
+- **Services**: Business logic for authentication, weather data, favorites, and history
+- **Controllers**: API endpoints for the application
+
+## Requirements
+
+- PHP 8.1+
+- Composer
+- MySQL/MariaDB
+- Redis (recommended for caching)
+- WeatherAPI.com API Key
+
+## Installation
+
+### Using Docker
+
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/weather_api_laravel.git
+cd weather_api_laravel
+```
+
+2. Copy the environment file:
+```bash
+cp .env.example .env
+```
+
+3. Configure your .env file with your database credentials and WeatherAPI.com API key:
+```
+DB_CONNECTION=mysql
+DB_HOST=db
+DB_PORT=3306
+DB_DATABASE=weather_api
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
+
+WEATHER_API_KEY=your_api_key
+```
+
+4. Build and start the Docker containers:
+```bash
+docker-compose up -d
+```
+
+5. Install dependencies:
+```bash
+docker-compose exec app composer install
+```
+
+6. Generate application key:
+```bash
+docker-compose exec app php artisan key:generate
+```
+
+7. Run migrations:
+```bash
+docker-compose exec app php artisan migrate
+```
+
+### Without Docker
+
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/weather_api_laravel.git
+cd weather_api_laravel
+```
+
+2. Copy the environment file:
+```bash
+cp .env.example .env
+```
+
+3. Configure your .env file with your database credentials and WeatherAPI.com API key.
+
+4. Install dependencies:
+```bash
+composer install
+```
+
+5. Generate application key:
+```bash
+php artisan key:generate
+```
+
+6. Run migrations:
+```bash
+php artisan migrate
+```
+
+7. Start the server:
+```bash
+php artisan serve
+```
+
+## API Documentation
+
+A Postman collection is included in the repository (`Weather_API_Laravel.postman_collection.json`). Import this collection into Postman to explore and test all available endpoints.
+
+### Authentication Endpoints
+
+- `POST /api/v1/auth/register` - Register a new user
+- `POST /api/v1/auth/login` - Login and get authentication token
+- `POST /api/v1/auth/logout` - Logout and revoke token
+- `GET /api/v1/auth/profile` - Get user profile
+- `PUT /api/v1/auth/profile` - Update user profile
+- `PUT /api/v1/auth/password` - Change user password
+
+### Weather Endpoints
+
+- `GET /api/v1/weather/current?city={city}` - Get current weather for a city
+- `GET /api/v1/weather/forecast?city={city}&days={days}` - Get weather forecast for a city
+- `GET /api/v1/weather/search?query={query}` - Search for cities by name
+- `GET /api/v1/weather/history` - Get user's weather search history
+- `DELETE /api/v1/weather/history` - Clear all weather search history
+- `DELETE /api/v1/weather/history/{id}` - Delete specific history item
+
+### Favorites Endpoints
+
+- `GET /api/v1/favorites` - Get all favorite cities
+- `GET /api/v1/favorites/default` - Get default favorite city
+- `POST /api/v1/favorites` - Add a city to favorites
+- `DELETE /api/v1/favorites/{id}` - Remove a city from favorites
+- `PUT /api/v1/favorites/{id}/default` - Set a favorite city as default
+
+## Testing
+
+Run the feature tests to ensure the API endpoints are working correctly:
+
+```bash
+php artisan test --filter=Feature
+```
+
+## License
+
+The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
