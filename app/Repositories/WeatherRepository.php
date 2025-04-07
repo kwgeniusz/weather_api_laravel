@@ -21,8 +21,8 @@ class WeatherRepository implements WeatherRepositoryInterface
 
     public function __construct()
     {
-        $this->baseUrl = config('weather_api.url');
-        $this->apiKey = config('weather_api.key');
+        $this->baseUrl = config('weather_api.base_url');
+        $this->apiKey = config('weather_api.api_key');
         $this->useCache = config('weather_api.cache.enabled', true);
         $this->cacheTtl = config('weather_api.cache.ttl', 3600);
 
@@ -30,8 +30,8 @@ class WeatherRepository implements WeatherRepositoryInterface
             ->withQueryParameters(['key' => $this->apiKey])
             ->timeout(config('weather_api.timeout', 30))
             ->retry(
-                config('weather_api.max_retries', 3),
-                config('weather_api.retry_delay', 100)
+                config('weather_api.retry.times', 3),
+                config('weather_api.retry.sleep', 100)
             );
     }
 
