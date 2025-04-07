@@ -1,249 +1,309 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
-
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
-
-## About Laravel
-
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
-
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
-
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
-
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-## Laravel Sponsors
-
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
-
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-
 # Weather API Laravel
 
-## About The Project
+![Laravel](https://img.shields.io/badge/Laravel-10.x-red.svg)
+![PHP](https://img.shields.io/badge/PHP-8.1-blue.svg)
+![License](https://img.shields.io/badge/License-MIT-green.svg)
 
-Weather API Laravel es una API RESTful para consultar el clima actual y pronósticos de cualquier ciudad del mundo. Utiliza la API de WeatherAPI.com para obtener datos meteorológicos y ofrece funcionalidades adicionales como autenticación de usuarios, gestión de favoritos e historial de búsquedas.
+API RESTful para consultar el clima actual y pronósticos de cualquier ciudad del mundo, con gestión de usuarios, favoritos e historial de búsquedas.
 
-## Features
+## 🌦️ Características
 
-- **User Authentication**: Registro, inicio de sesión, cierre de sesión y gestión de perfil utilizando Laravel Sanctum
-- **Weather Data**: Clima actual y pronósticos para cualquier ciudad
-- **City Search**: Búsqueda de ciudades por nombre
-- **Favorites Management**: Guardar ciudades favoritas y establecer ciudad predeterminada
-- **History Tracking**: Seguimiento automático del historial de búsquedas de clima para usuarios autenticados
-- **Multilingual Support**: Respuestas de API en múltiples idiomas
+- **Datos meteorológicos** - Clima actual y pronósticos utilizando WeatherAPI.com
+- **Autenticación** - Sistema completo con Laravel Sanctum
+- **Historial de consultas** - Seguimiento automático para usuarios autenticados
+- **Gestión de favoritos** - Guardar y establecer ciudades favoritas
+- **Multilenguaje** - Soporte para respuestas en varios idiomas
+- **Dockerizado** - Configuración lista para desarrollo y producción
 
-## Architecture
+## 🏗️ Arquitectura
 
-La aplicación sigue la Arquitectura Limpia con el patrón Repositorio-Servicio:
-- **Models**: User, WeatherHistory, Favorite
-- **DTOs**: UserDTO, WeatherDTO, FavoriteDTO
-- **Repositories**: Interfaces e implementaciones para User, Weather, History y Favorites
-- **Services**: Lógica de negocio para autenticación, datos meteorológicos, favoritos e historial
-- **Controllers**: Endpoints de API para la aplicación
-- **Authentication**: Implementación de Laravel Sanctum para API tokens
+El proyecto sigue una **Arquitectura Limpia** con patrón Repositorio-Servicio:
 
-## Requirements
+```
+app/
+├── Models/             # Modelos Eloquent (User, WeatherHistory, Favorite)
+├── DTO/                # Objetos de transferencia de datos
+├── Repositories/       # Implementación de repositorios
+│   └── Interfaces/     # Interfaces de repositorios
+├── Services/           # Servicios con lógica de negocio
+│   └── Interfaces/     # Interfaces de servicios
+├── Http/
+│   ├── Controllers/    # Controladores de API
+│   └── Requests/       # Validación de solicitudes
+└── Exceptions/         # Manejo de excepciones
+```
+
+## 🛠️ Stack Tecnológico
+
+Este proyecto utiliza un stack moderno de tecnologías para ofrecer una API robusta y escalable:
+
+- **Backend**: [Laravel 10](https://laravel.com/) - Framework PHP de alto rendimiento
+- **PHP**: Versión 8.1+ - Aprovechando las características modernas del lenguaje
+- **Base de Datos**: MySQL/MariaDB - Para almacenamiento relacional
+- **Caché**: Redis - Para optimizar el rendimiento de consultas frecuentes
+- **Autenticación**: [Laravel Sanctum](https://laravel.com/docs/10.x/sanctum) - Autenticación API con tokens
+- **API Externa**: [WeatherAPI.com](https://www.weatherapi.com/) - Proveedor de datos meteorológicos
+- **Contenedores**: Docker y Docker Compose - Para entornos de desarrollo y producción consistentes
+- **Validación**: Laravel Form Requests - Para validación de entrada robusta
+
+## 🏛️ Arquitectura y Patrones de Diseño
+
+### Arquitectura Limpia (Clean Architecture)
+
+El proyecto implementa los principios de la Arquitectura Limpia para mantener una separación clara de responsabilidades:
+
+1. **Capa de Dominio**: Contiene la lógica de negocio central
+   - DTOs (Data Transfer Objects)
+   - Interfaces de Servicios y Repositorios
+   - Reglas de negocio
+
+2. **Capa de Aplicación**: Orquesta el flujo de datos entre las capas externas y el dominio
+   - Servicios
+   - Casos de uso
+
+3. **Capa de Infraestructura**: Implementa las interfaces definidas en el dominio
+   - Repositorios
+   - Implementaciones de servicios externos
+   - Configuración de base de datos
+
+4. **Capa de Presentación**: Maneja la interacción con el cliente
+   - Controladores API
+   - Transformadores de datos
+   - Middleware
+
+### Patrones de Diseño Implementados
+
+- **Patrón Repositorio**: Abstrae la lógica de persistencia de datos, permitiendo cambiar la fuente de datos sin afectar la lógica de negocio
+- **Patrón Servicio**: Encapsula la lógica de negocio y coordina entre múltiples repositorios
+- **Patrón DTO (Data Transfer Object)**: Transporta datos entre procesos, reduciendo llamadas y desacoplando capas
+- **Patrón Fachada**: Simplifica interfaces complejas (implementado en los servicios)
+- **Inyección de Dependencias**: Proporciona instancias de clases a otras clases que las necesitan
+- **Patrón Singleton**: Utilizado a través del contenedor de servicios de Laravel
+
+### Flujo de Datos
+
+```
+Cliente → Controlador → Servicio → Repositorio → Modelo → Base de Datos
+   ↑          ↓            ↓          ↑
+   └──────────────────────────────────┘
+           (Respuesta DTO)
+```
+
+## 🔧 Requisitos
 
 - PHP 8.1+
 - Composer
 - MySQL/MariaDB
 - Redis (recomendado para caché)
-- WeatherAPI.com API Key
+- Clave API de WeatherAPI.com
 
-## Installation
+## 🚀 Instalación
 
-### Using Docker
+### Con Docker (Recomendado)
 
-1. Clonar el repositorio:
+```bash
+# Clonar el repositorio
+git clone https://github.com/yourusername/weather_api_laravel.git
+cd weather_api_laravel
+
+# Configurar entorno
+cp .env.example .env
+# Editar .env con credenciales y API key
+
+# Levantar contenedores
+docker-compose up -d
+
+# Instalar dependencias
+docker-compose exec app composer install
+
+# Configurar aplicación
+docker-compose exec app php artisan key:generate
+docker-compose exec app php artisan migrate
+```
+
+### Sin Docker
+
+```bash
+# Clonar y configurar
+git clone https://github.com/yourusername/weather_api_laravel.git
+cd weather_api_laravel
+cp .env.example .env
+# Editar .env con credenciales y API key
+
+# Instalar y configurar
+composer install
+php artisan key:generate
+php artisan migrate
+php artisan serve
+```
+
+## 🐳 Instalación con Docker
+
+El proyecto está completamente dockerizado para facilitar su despliegue y desarrollo. La configuración incluye:
+
+- Contenedor PHP 8.1-FPM
+- Servidor web Nginx
+- Base de datos MySQL
+- Redis para caché
+- Composer para gestión de dependencias
+
+### Requisitos Previos
+
+- [Docker](https://www.docker.com/get-started)
+- [Docker Compose](https://docs.docker.com/compose/install/)
+- Git
+
+### Pasos de Instalación
+
+1. **Clonar el repositorio**
+
 ```bash
 git clone https://github.com/yourusername/weather_api_laravel.git
 cd weather_api_laravel
 ```
 
-2. Copiar el archivo de entorno:
+2. **Configurar variables de entorno**
+
 ```bash
 cp .env.example .env
 ```
 
-3. Configurar el archivo .env con sus credenciales de base de datos y la clave API de WeatherAPI.com:
-```
-DB_CONNECTION=mysql
-DB_HOST=db
-DB_PORT=3306
-DB_DATABASE=weather_api
-DB_USERNAME=your_username
-DB_PASSWORD=your_password
+Edita el archivo `.env` con:
+- Credenciales de base de datos (DB_USERNAME, DB_PASSWORD)
+- Clave API de WeatherAPI.com (WEATHER_API_KEY)
+- Configuración de Redis si es necesario
 
-WEATHER_API_KEY=your_api_key
-```
+3. **Construir y levantar los contenedores**
 
-4. Construir e iniciar los contenedores Docker:
 ```bash
+docker-compose build
 docker-compose up -d
 ```
 
-5. Instalar dependencias:
+4. **Instalar dependencias de PHP**
+
 ```bash
 docker-compose exec app composer install
 ```
 
-6. Generar clave de aplicación:
+5. **Generar clave de aplicación**
+
 ```bash
 docker-compose exec app php artisan key:generate
 ```
 
-7. Ejecutar migraciones:
+6. **Ejecutar migraciones**
+
 ```bash
 docker-compose exec app php artisan migrate
 ```
 
-### Without Docker
+7. **Opcional: Cargar datos de prueba**
 
-1. Clonar el repositorio:
 ```bash
-git clone https://github.com/yourusername/weather_api_laravel.git
-cd weather_api_laravel
+docker-compose exec app php artisan db:seed
 ```
 
-2. Copiar el archivo de entorno:
+### Estructura de Docker
+
+El proyecto utiliza varios contenedores interconectados:
+
+- **app**: Contenedor PHP 8.1-FPM con todas las extensiones necesarias
+- **web**: Servidor Nginx configurado para Laravel
+- **db**: Base de datos MySQL/MariaDB
+- **redis**: Servidor Redis para caché
+
+### Comandos Docker Útiles
+
 ```bash
-cp .env.example .env
+# Ver logs de contenedores
+docker-compose logs -f
+
+# Acceder al shell del contenedor PHP
+docker-compose exec app bash
+
+# Ejecutar pruebas
+docker-compose exec app php artisan test
+
+# Detener todos los contenedores
+docker-compose down
 ```
 
-3. Configurar el archivo .env con sus credenciales de base de datos y la clave API de WeatherAPI.com.
+## 🔌 Endpoints de la API
 
-4. Instalar dependencias:
-```bash
-composer install
-```
+### Autenticación
 
-5. Generar clave de aplicación:
-```bash
-php artisan key:generate
-```
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| POST | `/api/v1/register` | Registrar nuevo usuario |
+| POST | `/api/v1/login` | Iniciar sesión y obtener token |
+| POST | `/api/v1/logout` | Cerrar sesión (autenticación requerida) |
 
-6. Ejecutar migraciones:
-```bash
-php artisan migrate
-```
+### Perfil de Usuario (autenticación requerida)
 
-7. Iniciar el servidor:
-```bash
-php artisan serve
-```
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | `/api/v1/profile` | Obtener perfil |
+| PUT | `/api/v1/profile` | Actualizar perfil |
+| PUT | `/api/v1/profile/password` | Cambiar contraseña |
 
-## API Documentation
+### Clima
 
-Se incluye una colección de Postman en el repositorio (`Weather_API_Laravel.postman_collection.json`). Importe esta colección en Postman para explorar y probar todos los endpoints disponibles.
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | `/api/v1/weather/current?city={city}` | Clima actual (guarda historial si está autenticado) |
+| GET | `/api/v1/weather/forecast?city={city}&days={days}` | Pronóstico del tiempo |
+| GET | `/api/v1/weather/search?query={query}` | Buscar ciudades |
 
-### Authentication Endpoints
+### Historial (autenticación requerida)
 
-- `POST /api/v1/register` - Registrar un nuevo usuario
-- `POST /api/v1/login` - Iniciar sesión y obtener token de autenticación
-- `POST /api/v1/logout` - Cerrar sesión y revocar token (requiere autenticación)
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | `/api/v1/weather/history` | Obtener historial con filtros y paginación |
 
-### User Profile Endpoints
+### Favoritos (autenticación requerida)
 
-- `GET /api/v1/profile` - Obtener perfil de usuario (requiere autenticación)
-- `PUT /api/v1/profile` - Actualizar perfil de usuario (requiere autenticación)
-- `PUT /api/v1/profile/password` - Cambiar contraseña de usuario (requiere autenticación)
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | `/api/v1/favorites` | Listar favoritos |
+| POST | `/api/v1/favorites` | Añadir favorito |
+| DELETE | `/api/v1/favorites/{id}` | Eliminar favorito |
+| GET | `/api/v1/favorites/default` | Obtener favorito predeterminado |
+| PUT | `/api/v1/favorites/{id}/default` | Establecer favorito predeterminado |
 
-### Weather Endpoints
+## 🔐 Autenticación con Sanctum
 
-- `GET /api/v1/weather/current?city={city}` - Obtener clima actual de una ciudad
-  - Si se proporciona un token de autenticación, la consulta se guarda automáticamente en el historial
-- `GET /api/v1/weather/forecast?city={city}&days={days}` - Obtener pronóstico del tiempo para una ciudad
-- `GET /api/v1/weather/search?query={query}` - Buscar ciudades por nombre
+Para acceder a los endpoints protegidos:
 
-### Weather History Endpoints (requieren autenticación)
-
-- `GET /api/v1/weather/history` - Obtener historial de búsquedas de clima del usuario
-  - Soporta paginación con parámetro `per_page`
-  - Soporta filtrado por fechas con parámetros `from_date` y `to_date`
-  - Soporta filtrado por ciudad con parámetro `city`
-
-### Favorites Endpoints (requieren autenticación)
-
-- `GET /api/v1/favorites` - Obtener todas las ciudades favoritas
-- `GET /api/v1/favorites/default` - Obtener ciudad favorita predeterminada
-- `POST /api/v1/favorites` - Añadir una ciudad a favoritos
-- `DELETE /api/v1/favorites/{id}` - Eliminar una ciudad de favoritos
-- `PUT /api/v1/favorites/{id}/default` - Establecer una ciudad favorita como predeterminada
-
-## Autenticación con Sanctum
-
-Esta API utiliza Laravel Sanctum para la autenticación. Para acceder a los endpoints protegidos:
-
-1. Registre un usuario o inicie sesión para obtener un token de autenticación
-2. Incluya el token en el encabezado de sus solicitudes:
+1. Registra un usuario o inicia sesión para obtener un token
+2. Incluye el token en tus solicitudes:
    ```
-   Authorization: Bearer {your_token}
+   Authorization: Bearer {tu_token}
    ```
 
-## Historial de Clima
+## 📋 Historial de Clima
 
-La funcionalidad de historial de clima permite a los usuarios autenticados:
+La funcionalidad de historial permite:
 
-- Guardar automáticamente las consultas de clima realizadas
-- Ver su historial de consultas con filtros y paginación
-- Los datos guardados incluyen ciudad, país, temperatura, descripción, humedad, velocidad del viento y datos completos de la respuesta de la API
+- Guardar automáticamente consultas de clima para usuarios autenticados
+- Filtrar por fechas (`from_date`, `to_date`) y ciudad (`city`)
+- Paginar resultados (`per_page`)
 
-## Testing
+Ejemplo:
+```
+GET /api/v1/weather/history?city=Madrid&from_date=2025-01-01&per_page=10
+```
 
-Ejecute las pruebas de características para asegurarse de que los endpoints de la API funcionan correctamente:
+## 🧪 Pruebas
 
 ```bash
+# Ejecutar todas las pruebas
+php artisan test
+
+# Solo pruebas de características
 php artisan test --filter=Feature
 ```
 
-## License
+## 📄 Licencia
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Este proyecto está licenciado bajo [MIT License](https://opensource.org/licenses/MIT).
