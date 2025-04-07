@@ -29,20 +29,11 @@ class FavoriteService implements FavoriteServiceInterface
 
             // If this is the first favorite, make it default
             $isFirst = count($this->getUserFavorites($userId)) === 0;
-
-            $favorite = $this->favoriteRepository->create([
-                'user_id' => $userId,
-                'city' => $favoriteDTO->getCity(),
-                'country' => $favoriteDTO->getCountry(),
-                'latitude' => $favoriteDTO->getLatitude(),
-                'longitude' => $favoriteDTO->getLongitude(),
-                'is_default' => $isFirst || $favoriteDTO->isDefault(),
-            ]);
-
-            // If this is set as default, remove default from other favorites
-            if ($favorite->is_default) {
-                $this->favoriteRepository->removeDefaultFromOthers($userId, $favorite->id);
+            if ($isFirst) {
+                $favoriteDTO->setDefault(true);
             }
+
+            $favorite = $this->favoriteRepository->addFavorite($userId, $favoriteDTO);
 
             return new FavoriteDTO(
                 $favorite->id,
@@ -62,9 +53,9 @@ class FavoriteService implements FavoriteServiceInterface
     public function removeFavorite(int $userId, int $favoriteId): bool
     {
         try {
-            $favorite = $this->favoriteRepository->find($favoriteId);
+            $favorite = $this->favoriteRepository->getFavorite($userId, $favoriteId);
 
-            if (!$favorite || $favorite->user_id !== $userId) {
+            if (!$favorite) {
                 throw ValidationException::withMessages([
                     'favorite' => ['Favorite not found.'],
                 ]);
@@ -75,7 +66,7 @@ class FavoriteService implements FavoriteServiceInterface
                 $this->setNewDefaultAfterRemoval($userId, $favoriteId);
             }
 
-            return $this->favoriteRepository->delete($favoriteId);
+            return $this->favoriteRepository->deleteFavorite($userId, $favoriteId);
         } catch (Exception $e) {
             Log::error("Error removing favorite: " . $e->getMessage());
             throw $e;
@@ -87,6 +78,9 @@ class FavoriteService implements FavoriteServiceInterface
         try {
             $favorites = $this->favoriteRepository->getUserFavorites($userId);
             
+            // Convertir la colección a un array
+            $favoritesArray = $favorites->all();
+            
             return array_map(function ($favorite) {
                 return new FavoriteDTO(
                     $favorite->id,
@@ -97,7 +91,7 @@ class FavoriteService implements FavoriteServiceInterface
                     $favorite->longitude,
                     $favorite->is_default
                 );
-            }, $favorites);
+            }, $favoritesArray);
         } catch (Exception $e) {
             Log::error("Error getting user favorites: " . $e->getMessage());
             return [];
@@ -109,21 +103,16 @@ class FavoriteService implements FavoriteServiceInterface
         try {
             DB::beginTransaction();
 
-            $favorite = $this->favoriteRepository->find($favoriteId);
+            $favorite = $this->favoriteRepository->getFavorite($userId, $favoriteId);
 
-            if (!$favorite || $favorite->user_id !== $userId) {
+            if (!$favorite) {
                 throw ValidationException::withMessages([
                     'favorite' => ['Favorite not found.'],
                 ]);
             }
 
-            // Remove default from other favorites
-            $this->favoriteRepository->removeDefaultFromOthers($userId, $favoriteId);
-
             // Set this one as default
-            $favorite = $this->favoriteRepository->update($favoriteId, [
-                'is_default' => true,
-            ]);
+            $favorite = $this->favoriteRepository->setDefaultFavorite($userId, $favoriteId);
 
             DB::commit();
 
@@ -182,9 +171,7 @@ class FavoriteService implements FavoriteServiceInterface
         $nextFavorite = $this->favoriteRepository->getFirstNonDefaultFavorite($userId, $excludeFavoriteId);
         
         if ($nextFavorite) {
-            $this->favoriteRepository->update($nextFavorite->id, [
-                'is_default' => true,
-            ]);
+            $this->favoriteRepository->setDefaultFavorite($userId, $nextFavorite->id);
         }
     }
 }

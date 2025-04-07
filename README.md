@@ -69,50 +69,51 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 
 ## About The Project
 
-Weather API Laravel is a RESTful API application built with Laravel that provides weather information for cities around the world. The application integrates with WeatherAPI.com to fetch current weather data and forecasts, while allowing users to manage their favorite cities and search history.
+Weather API Laravel es una API RESTful para consultar el clima actual y pronósticos de cualquier ciudad del mundo. Utiliza la API de WeatherAPI.com para obtener datos meteorológicos y ofrece funcionalidades adicionales como autenticación de usuarios, gestión de favoritos e historial de búsquedas.
 
 ## Features
 
-- **User Authentication**: Register, login, logout, profile management
-- **Weather Data**: Current weather and forecasts for any city
-- **City Search**: Search for cities by name
-- **Favorites Management**: Save favorite cities and set default city
-- **History Tracking**: Track and manage weather search history
-- **Multilingual Support**: API responses in multiple languages
+- **User Authentication**: Registro, inicio de sesión, cierre de sesión y gestión de perfil utilizando Laravel Sanctum
+- **Weather Data**: Clima actual y pronósticos para cualquier ciudad
+- **City Search**: Búsqueda de ciudades por nombre
+- **Favorites Management**: Guardar ciudades favoritas y establecer ciudad predeterminada
+- **History Tracking**: Seguimiento automático del historial de búsquedas de clima para usuarios autenticados
+- **Multilingual Support**: Respuestas de API en múltiples idiomas
 
 ## Architecture
 
-The application follows Clean Architecture with Repository-Service pattern:
+La aplicación sigue la Arquitectura Limpia con el patrón Repositorio-Servicio:
 - **Models**: User, WeatherHistory, Favorite
 - **DTOs**: UserDTO, WeatherDTO, FavoriteDTO
-- **Repositories**: Interfaces and implementations for User, Weather, History, and Favorites
-- **Services**: Business logic for authentication, weather data, favorites, and history
-- **Controllers**: API endpoints for the application
+- **Repositories**: Interfaces e implementaciones para User, Weather, History y Favorites
+- **Services**: Lógica de negocio para autenticación, datos meteorológicos, favoritos e historial
+- **Controllers**: Endpoints de API para la aplicación
+- **Authentication**: Implementación de Laravel Sanctum para API tokens
 
 ## Requirements
 
 - PHP 8.1+
 - Composer
 - MySQL/MariaDB
-- Redis (recommended for caching)
+- Redis (recomendado para caché)
 - WeatherAPI.com API Key
 
 ## Installation
 
 ### Using Docker
 
-1. Clone the repository:
+1. Clonar el repositorio:
 ```bash
 git clone https://github.com/yourusername/weather_api_laravel.git
 cd weather_api_laravel
 ```
 
-2. Copy the environment file:
+2. Copiar el archivo de entorno:
 ```bash
 cp .env.example .env
 ```
 
-3. Configure your .env file with your database credentials and WeatherAPI.com API key:
+3. Configurar el archivo .env con sus credenciales de base de datos y la clave API de WeatherAPI.com:
 ```
 DB_CONNECTION=mysql
 DB_HOST=db
@@ -124,94 +125,120 @@ DB_PASSWORD=your_password
 WEATHER_API_KEY=your_api_key
 ```
 
-4. Build and start the Docker containers:
+4. Construir e iniciar los contenedores Docker:
 ```bash
 docker-compose up -d
 ```
 
-5. Install dependencies:
+5. Instalar dependencias:
 ```bash
 docker-compose exec app composer install
 ```
 
-6. Generate application key:
+6. Generar clave de aplicación:
 ```bash
 docker-compose exec app php artisan key:generate
 ```
 
-7. Run migrations:
+7. Ejecutar migraciones:
 ```bash
 docker-compose exec app php artisan migrate
 ```
 
 ### Without Docker
 
-1. Clone the repository:
+1. Clonar el repositorio:
 ```bash
 git clone https://github.com/yourusername/weather_api_laravel.git
 cd weather_api_laravel
 ```
 
-2. Copy the environment file:
+2. Copiar el archivo de entorno:
 ```bash
 cp .env.example .env
 ```
 
-3. Configure your .env file with your database credentials and WeatherAPI.com API key.
+3. Configurar el archivo .env con sus credenciales de base de datos y la clave API de WeatherAPI.com.
 
-4. Install dependencies:
+4. Instalar dependencias:
 ```bash
 composer install
 ```
 
-5. Generate application key:
+5. Generar clave de aplicación:
 ```bash
 php artisan key:generate
 ```
 
-6. Run migrations:
+6. Ejecutar migraciones:
 ```bash
 php artisan migrate
 ```
 
-7. Start the server:
+7. Iniciar el servidor:
 ```bash
 php artisan serve
 ```
 
 ## API Documentation
 
-A Postman collection is included in the repository (`Weather_API_Laravel.postman_collection.json`). Import this collection into Postman to explore and test all available endpoints.
+Se incluye una colección de Postman en el repositorio (`Weather_API_Laravel.postman_collection.json`). Importe esta colección en Postman para explorar y probar todos los endpoints disponibles.
 
 ### Authentication Endpoints
 
-- `POST /api/v1/auth/register` - Register a new user
-- `POST /api/v1/auth/login` - Login and get authentication token
-- `POST /api/v1/auth/logout` - Logout and revoke token
-- `GET /api/v1/auth/profile` - Get user profile
-- `PUT /api/v1/auth/profile` - Update user profile
-- `PUT /api/v1/auth/password` - Change user password
+- `POST /api/v1/register` - Registrar un nuevo usuario
+- `POST /api/v1/login` - Iniciar sesión y obtener token de autenticación
+- `POST /api/v1/logout` - Cerrar sesión y revocar token (requiere autenticación)
+
+### User Profile Endpoints
+
+- `GET /api/v1/profile` - Obtener perfil de usuario (requiere autenticación)
+- `PUT /api/v1/profile` - Actualizar perfil de usuario (requiere autenticación)
+- `PUT /api/v1/profile/password` - Cambiar contraseña de usuario (requiere autenticación)
 
 ### Weather Endpoints
 
-- `GET /api/v1/weather/current?city={city}` - Get current weather for a city
-- `GET /api/v1/weather/forecast?city={city}&days={days}` - Get weather forecast for a city
-- `GET /api/v1/weather/search?query={query}` - Search for cities by name
-- `GET /api/v1/weather/history` - Get user's weather search history
-- `DELETE /api/v1/weather/history` - Clear all weather search history
-- `DELETE /api/v1/weather/history/{id}` - Delete specific history item
+- `GET /api/v1/weather/current?city={city}` - Obtener clima actual de una ciudad
+  - Si se proporciona un token de autenticación, la consulta se guarda automáticamente en el historial
+- `GET /api/v1/weather/forecast?city={city}&days={days}` - Obtener pronóstico del tiempo para una ciudad
+- `GET /api/v1/weather/search?query={query}` - Buscar ciudades por nombre
 
-### Favorites Endpoints
+### Weather History Endpoints (requieren autenticación)
 
-- `GET /api/v1/favorites` - Get all favorite cities
-- `GET /api/v1/favorites/default` - Get default favorite city
-- `POST /api/v1/favorites` - Add a city to favorites
-- `DELETE /api/v1/favorites/{id}` - Remove a city from favorites
-- `PUT /api/v1/favorites/{id}/default` - Set a favorite city as default
+- `GET /api/v1/weather/history` - Obtener historial de búsquedas de clima del usuario
+  - Soporta paginación con parámetro `per_page`
+  - Soporta filtrado por fechas con parámetros `from_date` y `to_date`
+  - Soporta filtrado por ciudad con parámetro `city`
+
+### Favorites Endpoints (requieren autenticación)
+
+- `GET /api/v1/favorites` - Obtener todas las ciudades favoritas
+- `GET /api/v1/favorites/default` - Obtener ciudad favorita predeterminada
+- `POST /api/v1/favorites` - Añadir una ciudad a favoritos
+- `DELETE /api/v1/favorites/{id}` - Eliminar una ciudad de favoritos
+- `PUT /api/v1/favorites/{id}/default` - Establecer una ciudad favorita como predeterminada
+
+## Autenticación con Sanctum
+
+Esta API utiliza Laravel Sanctum para la autenticación. Para acceder a los endpoints protegidos:
+
+1. Registre un usuario o inicie sesión para obtener un token de autenticación
+2. Incluya el token en el encabezado de sus solicitudes:
+   ```
+   Authorization: Bearer {your_token}
+   ```
+
+## Historial de Clima
+
+La funcionalidad de historial de clima permite a los usuarios autenticados:
+
+- Guardar automáticamente las consultas de clima realizadas
+- Ver su historial de consultas con filtros y paginación
+- Los datos guardados incluyen ciudad, país, temperatura, descripción, humedad, velocidad del viento y datos completos de la respuesta de la API
 
 ## Testing
 
-Run the feature tests to ensure the API endpoints are working correctly:
+Ejecute las pruebas de características para asegurarse de que los endpoints de la API funcionan correctamente:
 
 ```bash
 php artisan test --filter=Feature

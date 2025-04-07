@@ -141,6 +141,20 @@ class FavoriteRepository implements FavoriteRepositoryInterface
     }
 
     /**
+     * Check if a city is already in user's favorites.
+     *
+     * @param int $userId
+     * @param string $city
+     * @return bool
+     */
+    public function isCityFavorite(int $userId, string $city): bool
+    {
+        return Favorite::where('user_id', $userId)
+            ->where('city', $city)
+            ->exists();
+    }
+
+    /**
      * Unset all default favorites for a user.
      *
      * @param int $userId
@@ -170,5 +184,21 @@ class FavoriteRepository implements FavoriteRepositoryInterface
         if ($newDefault) {
             $newDefault->update(['is_default' => true]);
         }
+    }
+
+    /**
+     * Get the first non-default favorite for a user, excluding a specific ID.
+     *
+     * @param int $userId
+     * @param int $excludeId
+     * @return Favorite|null
+     */
+    public function getFirstNonDefaultFavorite(int $userId, int $excludeId): ?Favorite
+    {
+        return Favorite::where('user_id', $userId)
+            ->where('id', '!=', $excludeId)
+            ->where('is_default', false)
+            ->orderBy('created_at')
+            ->first();
     }
 }

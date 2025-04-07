@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\DTO\V1\WeatherDTO;
 use App\Repositories\Interfaces\WeatherRepositoryInterface;
-use App\Repositories\Interfaces\HistoryRepositoryInterface;
+use App\Services\Interfaces\HistoryServiceInterface;
 use App\Services\Interfaces\WeatherServiceInterface;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -14,7 +14,7 @@ class WeatherService implements WeatherServiceInterface
 {
     public function __construct(
         private readonly WeatherRepositoryInterface $weatherRepository,
-        private readonly HistoryRepositoryInterface $historyRepository
+        private readonly HistoryServiceInterface $historyService
     ) {
     }
 
@@ -62,30 +62,64 @@ class WeatherService implements WeatherServiceInterface
     public function saveHistory(int $userId, WeatherDTO $weatherData): bool
     {
         try {
-            return $this->historyRepository->create([
-                'user_id' => $userId,
-                'city' => $weatherData->getCity(),
-                'country' => $weatherData->getCountry(),
-                'temperature' => $weatherData->getTemperature(),
-                'description' => $weatherData->getDescription(),
-                'humidity' => $weatherData->getHumidity(),
-                'wind_speed' => $weatherData->getWindSpeed(),
-                'request_data' => json_encode($weatherData->getRequestData()),
-                'response_data' => json_encode($weatherData->getResponseData()),
-            ]) !== null;
+            return $this->historyService->saveToHistory($userId, $weatherData);
         } catch (Exception $e) {
             Log::error("Error saving weather history: " . $e->getMessage());
             return false;
         }
     }
 
-    public function getUserHistory(int $userId, array $filters = []): array
+    public function getHistory(int $userId, array $filters = []): array
     {
         try {
-            return $this->historyRepository->getUserHistory($userId, $filters);
+            $perPage = 10;
+            
+            if (isset($filters['per_page']) && is_numeric($filters['per_page'])) {
+                $perPage = (int) $filters['per_page'];
+            }
+            
+            $historyResult = $this->historyService->getUserHistory($userId, $filters);
+            
+            // Si el historyService devuelve un array vacío, devolver un resultado vacío
+            if (empty($historyResult)) {
+                return [
+                    'data' => [],
+                    'meta' => [
+                        'current_page' => 1,
+                        'per_page' => $perPage,
+                        'total' => 0,
+                        'last_page' => 1,
+                    ],
+                ];
+            }
+            
+            // El historyService ahora devuelve un array con 'data' y 'pagination'
+            return [
+                'data' => $historyResult['data'],
+                'meta' => [
+                    'current_page' => $historyResult['pagination']['current_page'],
+                    'per_page' => $historyResult['pagination']['per_page'],
+                    'total' => $historyResult['pagination']['total'],
+                    'last_page' => $historyResult['pagination']['last_page'],
+                ],
+            ];
         } catch (Exception $e) {
-            Log::error("Error getting user history: " . $e->getMessage());
-            return [];
+            Log::error("Error getting history: " . $e->getMessage(), [
+                'user_id' => $userId,
+                'exception' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ]);
+            
+            return [
+                'data' => [],
+                'meta' => [
+                    'current_page' => 1,
+                    'per_page' => $perPage,
+                    'total' => 0,
+                    'last_page' => 1,
+                ],
+            ];
         }
     }
 }

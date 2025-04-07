@@ -30,14 +30,13 @@
 							"raw": "{\n    \"name\": \"Test User\",\n    \"email\": \"test@example.com\",\n    \"password\": \"password123\",\n    \"password_confirmation\": \"password123\"\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/api/v1/auth/register",
+							"raw": "{{base_url}}/api/v1/register",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"api",
 								"v1",
-								"auth",
 								"register"
 							]
 						},
@@ -66,14 +65,13 @@
 							"raw": "{\n    \"email\": \"test@example.com\",\n    \"password\": \"password123\"\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/api/v1/auth/login",
+							"raw": "{{base_url}}/api/v1/login",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"api",
 								"v1",
-								"auth",
 								"login"
 							]
 						},
@@ -98,14 +96,13 @@
 							}
 						],
 						"url": {
-							"raw": "{{base_url}}/api/v1/auth/logout",
+							"raw": "{{base_url}}/api/v1/logout",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"api",
 								"v1",
-								"auth",
 								"logout"
 							]
 						},
@@ -130,14 +127,13 @@
 							}
 						],
 						"url": {
-							"raw": "{{base_url}}/api/v1/auth/profile",
+							"raw": "{{base_url}}/api/v1/profile",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"api",
 								"v1",
-								"auth",
 								"profile"
 							]
 						},
@@ -171,14 +167,13 @@
 							"raw": "{\n    \"name\": \"Updated Name\",\n    \"email\": \"updated@example.com\"\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/api/v1/auth/profile",
+							"raw": "{{base_url}}/api/v1/profile",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"api",
 								"v1",
-								"auth",
 								"profile"
 							]
 						},
@@ -212,14 +207,14 @@
 							"raw": "{\n    \"current_password\": \"password123\",\n    \"password\": \"newpassword123\",\n    \"password_confirmation\": \"newpassword123\"\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/api/v1/auth/password",
+							"raw": "{{base_url}}/api/v1/profile/password",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"api",
 								"v1",
-								"auth",
+								"profile",
 								"password"
 							]
 						},
@@ -348,7 +343,7 @@
 							}
 						],
 						"url": {
-							"raw": "{{base_url}}/api/v1/weather/search?query=Lon",
+							"raw": "{{base_url}}/api/v1/weather/search?q=Lon",
 							"host": [
 								"{{base_url}}"
 							],
@@ -360,7 +355,7 @@
 							],
 							"query": [
 								{
-									"key": "query",
+									"key": "q",
 									"value": "Lon"
 								}
 							]

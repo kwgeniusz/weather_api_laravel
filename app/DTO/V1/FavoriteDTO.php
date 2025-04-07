@@ -50,6 +50,12 @@ class FavoriteDTO
         return $this->isDefault;
     }
 
+    public function setDefault(bool $isDefault): self
+    {
+        $this->isDefault = $isDefault;
+        return $this;
+    }
+
     public function toArray(): array
     {
         return [

@@ -42,7 +42,7 @@ class UserRepository implements UserRepositoryInterface
         return User::create([
             'name' => $userDTO->getName(),
             'email' => $userDTO->getEmail(),
-            'password' => Hash::make($userDTO->getPassword()),
+            'password' => $userDTO->getPassword(), // La contraseña ya viene hasheada del servicio
         ]);
     }
 

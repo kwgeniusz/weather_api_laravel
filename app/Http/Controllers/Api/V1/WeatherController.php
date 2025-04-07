@@ -7,6 +7,7 @@ use App\Http\Requests\V1\WeatherRequest;
 use App\Services\Interfaces\WeatherServiceInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 /**
  * @OA\Tag(
@@ -80,10 +81,40 @@ class WeatherController extends Controller
             $request->query('city'),
             $request->only(['language', 'units'])
         );
-
-        // Save to history if user is authenticated
-        if (auth()->check()) {
-            $this->weatherService->saveHistory(auth()->id(), $weather);
+        
+        // Intentar obtener el usuario desde el token de Sanctum
+        $token = $request->bearerToken();
+   
+        if ($token) {
+            // Si hay un token, intentar obtener el usuario
+            $user = null;
+            
+            try {
+                // Usar el modelo de Personal Access Token para encontrar el token
+                $accessToken = \Laravel\Sanctum\PersonalAccessToken::findToken($token);
+                
+                if ($accessToken) {
+                    $user = $accessToken->tokenable;
+                    
+                    // Guardar en el historial si encontramos un usuario válido
+                    try {
+                        $saved = $this->weatherService->saveHistory($user->id, $weather);
+                        if (!$saved) {
+                            Log::warning("No se pudo guardar el historial del clima para el usuario " . $user->id);
+                        }
+                    } catch (\Exception $e) {
+                        Log::error("Error al guardar el historial del clima: " . $e->getMessage(), [
+                            'user_id' => $user->id,
+                            'city' => $weather->getCity(),
+                            'exception' => get_class($e),
+                            'file' => $e->getFile(),
+                            'line' => $e->getLine()
+                        ]);
+                    }
+                }
+            } catch (\Exception $e) {
+                Log::error("Error al verificar el token: " . $e->getMessage());
+            }
         }
 
         return response()->json([
@@ -247,13 +278,20 @@ class WeatherController extends Controller
      */
     public function history(Request $request): JsonResponse
     {
-        $history = $this->weatherService->getUserHistory(
-            auth()->id(),
-            $request->only(['from_date', 'to_date', 'city'])
+        // Como esta ruta está protegida por auth:sanctum, podemos usar $request->user() directamente
+        $user = $request->user();
+        
+        if (!$user) {
+            return response()->json([
+                'message' => 'Unauthenticated.'
+            ], 401);
+        }
+        
+        $history = $this->weatherService->getHistory(
+            $user->id,
+            $request->only(['from_date', 'to_date', 'city', 'per_page'])
         );
 
-        return response()->json([
-            'data' => $history
-        ]);
+        return response()->json($history);
     }
 }

@@ -9,6 +9,7 @@ use App\Http\Requests\V1\RegisterRequest;
 use App\Services\Interfaces\UserServiceInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * @OA\Tag(
@@ -113,11 +114,32 @@ class AuthController extends Controller
      */
     public function login(LoginRequest $request): JsonResponse
     {
-        $result = $this->userService->login($request->email, $request->password);
-
+        // Intentar autenticar directamente
+        if (!Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+            return response()->json([
+                'error' => [
+                    'message' => 'The given data was invalid.',
+                    'code' => 'VALIDATION_ERROR',
+                    'details' => [
+                        'email' => ['The provided credentials are incorrect.']
+                    ]
+                ]
+            ], 422);
+        }
+        
+        $user = Auth::user();
+        $token = $user->createToken('auth_token')->plainTextToken;
+        
         return response()->json([
             'message' => 'Logged in successfully',
-            'data' => $result
+            'data' => [
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email
+                ],
+                'token' => $token
+            ]
         ]);
     }
 

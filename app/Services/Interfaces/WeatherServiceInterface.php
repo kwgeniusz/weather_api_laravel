@@ -49,5 +49,5 @@ interface WeatherServiceInterface
      * @param array $filters
      * @return array
      */
-    public function getUserHistory(int $userId, array $filters = []): array;
+    public function getHistory(int $userId, array $filters = []): array;
 }

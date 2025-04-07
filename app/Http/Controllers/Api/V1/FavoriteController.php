@@ -56,9 +56,14 @@ class FavoriteController extends Controller
     public function index(): JsonResponse
     {
         $favorites = $this->favoriteService->getUserFavorites(auth()->id());
+        
+        // Convertir cada favorito a un array
+        $favoritesArray = array_map(function($favorite) {
+            return $favorite->toArray();
+        }, $favorites);
 
         return response()->json([
-            'data' => $favorites
+            'data' => $favoritesArray
         ]);
     }
 

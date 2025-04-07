@@ -5,8 +5,8 @@ namespace App\Services;
 use App\DTO\V1\WeatherDTO;
 use App\Repositories\Interfaces\HistoryRepositoryInterface;
 use App\Services\Interfaces\HistoryServiceInterface;
-use Illuminate\Support\Facades\Log;
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 class HistoryService implements HistoryServiceInterface
 {
@@ -18,19 +18,22 @@ class HistoryService implements HistoryServiceInterface
     public function saveToHistory(int $userId, WeatherDTO $weatherDTO): bool
     {
         try {
-            return $this->historyRepository->create([
+            Log::debug("Intentando guardar historial para usuario $userId, ciudad: " . $weatherDTO->getCity());
+            
+            $result = $this->historyRepository->saveToHistory($userId, $weatherDTO);
+            
+            Log::debug("Resultado de guardar historial: " . ($result ? "Éxito" : "Fallo"));
+            
+            return $result !== null;
+        } catch (Exception $e) {
+            Log::error("Error detallado al guardar historial: " . $e->getMessage(), [
                 'user_id' => $userId,
                 'city' => $weatherDTO->getCity(),
-                'country' => $weatherDTO->getCountry(),
-                'temperature' => $weatherDTO->getTemperature(),
-                'description' => $weatherDTO->getDescription(),
-                'humidity' => $weatherDTO->getHumidity(),
-                'wind_speed' => $weatherDTO->getWindSpeed(),
-                'request_data' => json_encode($weatherDTO->getRequestData()),
-                'response_data' => json_encode($weatherDTO->getResponseData()),
-            ]) !== null;
-        } catch (Exception $e) {
-            Log::error("Error saving to history: " . $e->getMessage());
+                'exception' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return false;
         }
     }
@@ -38,9 +41,29 @@ class HistoryService implements HistoryServiceInterface
     public function getUserHistory(int $userId, array $filters = []): array
     {
         try {
-            return $this->historyRepository->getUserHistory($userId, $filters);
+            // Extraer el valor de paginación del array de filtros, o usar 15 por defecto
+            $perPage = isset($filters['per_page']) ? (int) $filters['per_page'] : 15;
+            
+            // Obtener el historial paginado
+            $history = $this->historyRepository->getUserHistory($userId, $perPage);
+            
+            // Devolver los resultados como array
+            return [
+                'data' => $history->items(),
+                'pagination' => [
+                    'total' => $history->total(),
+                    'per_page' => $history->perPage(),
+                    'current_page' => $history->currentPage(),
+                    'last_page' => $history->lastPage()
+                ]
+            ];
         } catch (Exception $e) {
-            Log::error("Error getting user history: " . $e->getMessage());
+            Log::error("Error getting user history: " . $e->getMessage(), [
+                'user_id' => $userId,
+                'exception' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ]);
             return [];
         }
     }

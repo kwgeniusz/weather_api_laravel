@@ -6,6 +6,7 @@ use App\DTO\V1\UserDTO;
 use App\Models\User;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use App\Services\Interfaces\UserServiceInterface;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
@@ -25,9 +26,9 @@ class UserService implements UserServiceInterface
             ]);
         }
 
-        // Hash password
-        $userDTO->setPassword(Hash::make($userDTO->getPassword()));
-
+        // Hash password usando bcrypt directamente
+        $userDTO->setPassword(password_hash($userDTO->getPassword(), PASSWORD_BCRYPT));
+        
         // Create user
         $user = $this->userRepository->create($userDTO);
 
@@ -40,14 +41,15 @@ class UserService implements UserServiceInterface
 
     public function login(string $email, string $password): array
     {
-        $user = $this->userRepository->findByEmail($email);
-
-        if (!$user || !Hash::check($password, $user->password)) {
+        // Intentar autenticar al usuario usando el sistema de autenticación de Laravel
+        if (!Auth::attempt(['email' => $email, 'password' => $password])) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
         }
 
+        $user = $this->userRepository->findByEmail($email);
+        
         // Create token
         $token = $user->createToken('auth_token')->plainTextToken;
 
