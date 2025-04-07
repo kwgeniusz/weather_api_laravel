@@ -99,44 +99,6 @@ Cliente → Controlador → Servicio → Repositorio → Modelo → Base de Dato
 
 ## 🚀 Instalación
 
-### Con Docker (Recomendado)
-
-```bash
-# Clonar el repositorio
-git clone https://github.com/yourusername/weather_api_laravel.git
-cd weather_api_laravel
-
-# Configurar entorno
-cp .env.example .env
-# Editar .env con credenciales y API key
-
-# Levantar contenedores
-docker-compose up -d
-
-# Instalar dependencias
-docker-compose exec app composer install
-
-# Configurar aplicación
-docker-compose exec app php artisan key:generate
-docker-compose exec app php artisan migrate
-```
-
-### Sin Docker
-
-```bash
-# Clonar y configurar
-git clone https://github.com/yourusername/weather_api_laravel.git
-cd weather_api_laravel
-cp .env.example .env
-# Editar .env con credenciales y API key
-
-# Instalar y configurar
-composer install
-php artisan key:generate
-php artisan migrate
-php artisan serve
-```
-
 ## 🐳 Instalación con Docker
 
 El proyecto está completamente dockerizado para facilitar su despliegue y desarrollo. La configuración incluye:
@@ -158,7 +120,7 @@ El proyecto está completamente dockerizado para facilitar su despliegue y desar
 1. **Clonar el repositorio**
 
 ```bash
-git clone https://github.com/yourusername/weather_api_laravel.git
+git clone https://github.com/kwgeniusz/weather_api_laravel.git
 cd weather_api_laravel
 ```
 
@@ -168,37 +130,76 @@ cd weather_api_laravel
 cp .env.example .env
 ```
 
-Edita el archivo `.env` con:
-- Credenciales de base de datos (DB_USERNAME, DB_PASSWORD)
-- Clave API de WeatherAPI.com (WEATHER_API_KEY)
-- Configuración de Redis si es necesario
+3. **Ejemplo de configuración .env**
 
-3. **Construir y levantar los contenedores**
+```env
+APP_NAME="Weather API"
+APP_ENV=local
+APP_KEY=base64:jAyOA1OKZd/npkf5ZJ/i3M9dS6j8gaakjf7rD39DyfQ=
+APP_DEBUG=true
+APP_URL=http://localhost:8000
+
+LOG_CHANNEL=stack
+LOG_DEPRECATIONS_CHANNEL=null
+LOG_LEVEL=debug
+
+DB_CONNECTION=mysql
+DB_HOST=db
+DB_PORT=3306
+DB_DATABASE=weather_api
+DB_USERNAME=root
+DB_PASSWORD=root
+
+BROADCAST_DRIVER=log
+CACHE_DRIVER=file
+FILESYSTEM_DISK=local
+QUEUE_CONNECTION=sync
+SESSION_DRIVER=file
+SESSION_LIFETIME=120
+
+REDIS_HOST=redis
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+
+# Weather API Configuration
+WEATHER_API_KEY=63a4401d8b85477ab5035628250504
+WEATHER_API_URL=http://api.weatherapi.com/v1
+WEATHER_API_CACHE_ENABLED=true
+WEATHER_API_CACHE_TTL=3600
+WEATHER_API_TIMEOUT=5
+WEATHER_API_RETRY_TIMES=3
+WEATHER_API_RETRY_SLEEP=1000
+
+SANCTUM_STATEFUL_DOMAINS=localhost,127.0.0.1,localhost:8000
+SESSION_DOMAIN=localhost
+```
+
+4. **Construir y levantar los contenedores**
 
 ```bash
 docker-compose build
 docker-compose up -d
 ```
 
-4. **Instalar dependencias de PHP**
+5. **Instalar dependencias de PHP**
 
 ```bash
 docker-compose exec app composer install
 ```
 
-5. **Generar clave de aplicación**
+6. **Generar clave de aplicación**
 
 ```bash
 docker-compose exec app php artisan key:generate
 ```
 
-6. **Ejecutar migraciones**
+7. **Ejecutar migraciones**
 
 ```bash
 docker-compose exec app php artisan migrate
 ```
 
-7. **Opcional: Cargar datos de prueba**
+8. **Opcional: Cargar datos de prueba**
 
 ```bash
 docker-compose exec app php artisan db:seed
